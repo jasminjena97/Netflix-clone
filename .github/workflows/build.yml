@@ -51,7 +51,7 @@ jobs:
           DOCKER_CLI_ACI: 1
           deploy:    
     needs: build  
-    runs-on: [aws-netflix]  
+        runs-on: [aws-netflix]  
     steps:
       - name: Pull the docker image
         run: docker pull gowthamsomu/netflix:latest
