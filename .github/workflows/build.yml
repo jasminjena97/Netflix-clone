@@ -12,41 +12,34 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
       - name: Install trivy
         run: |
-          # Install trivy
           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
           echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
           sudo apt-get update
           sudo apt-get install trivy -y
-          # Command to scan files
           trivy fs .
       - name: Docker build and push
         run: |
-          # Run commands to build and push docker images
           docker build --build-arg TMDB_V3_API_KEY=f5fcf68c91d78178184cc7628aa8970d -t netflix .
           docker tag netflix gowthamsomu/netflix:latest
           docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker push gowthamsomu/netflix:latest
-        env:
-          deploy:    
-    needs: build  
-        runs-on: [aws-netflix]  
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: [aws-netflix]
     steps:
       - name: Pull the docker image
         run: docker pull gowthamsomu/netflix:latest
       - name: Trivy image scan
         run: trivy image gowthamsomu/netflix:latest
       - name: Run the container netflix
-        run: docker run -d --name netflix -p 8081:80 gowthamsomu/netflix:latestDOCKER_CLI_ACI: 1
-          
+        run: docker run -d --name netflix -p 8081:80 gowthamsomu/netflix:latest
