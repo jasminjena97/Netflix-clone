@@ -22,7 +22,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Install Trivy
-        run:  self-hosted
+        run:  
           # Install trivy
           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
           wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
@@ -33,7 +33,7 @@ jobs:
           trivy fs .
 
       - name: Docker build and push
-        run: |self-hosted
+        run: 
           # Run commands to build and push Docker images
           docker build --build-arg TMDB_V3_API_KEY=f5fcf68c91d78178184cc7628aa8970d -t netflix .
           docker tag netflix gowthamsomu/netflix:latest
