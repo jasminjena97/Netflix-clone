@@ -35,7 +35,7 @@ jobs:
   deploy:
     name: Deploy
     needs: build
-    runs-on: [aws-netflix]
+    runs-on: aws-netflix
     steps:
       - name: Pull the docker image
         run: docker pull gowthamsomu/netflix:latest
